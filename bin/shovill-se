@@ -105,7 +105,24 @@ check_deps();
 # Tweak options for different spades versions
 my $spades_ver = spades_version();
 msg("Found spades version:", spades_version());
-my $spades_mode = $spades_ver >= "003014000" ? '--isolate' : '--only-assembler';
+
+our $spades_mode = "";
+
+if($spades_ver >= "003014000") {
+  msg("Checking assembler specific options...");
+  if($opts eq "") {
+    # Illumina data
+    our $spades_mode = '--isolate';
+  } else {
+    # Other technologies: Ion Torrent, PacBio, Nanopore
+    # Use --careful option to reduce
+    # number of mismatches and short indels
+    our $spades_mode = "--careful";
+  }
+} else {
+  our $spades_mode = '--only-assembler';
+}
+
 my $stitch_arg = $spades_ver >= "003012000" ? '--merged' : '-s';
 msg("Will use spades $spades_ver options: $spades_mode and $stitch_arg") if $assembler eq 'spades';
 
